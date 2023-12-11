@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>WebGL Пример 4: Устанавливаем цвета вершин</title>
+<meta charset="utf-8" />
+</head>
+<body>
+<canvas id="canvas" width="400" height="400">Ваш браузер не поддерживает элемент canvas</canvas>
+<script id="shader-vs" type="x-shader/x-vertex">
+attribute vec3 aVertexPosition;
+attribute vec3 aVertexColor;
+varying highp vec4 vColor;
+void main(void) {
+  gl_Position = vec4(aVertexPosition, 1.0);
+  vColor = vec4(aVertexColor, 1.0);
+}
+</script>
+<script id="shader-fs" type="x-shader/x-fragment">
+varying highp vec4 vColor;
+  void main(void) {
+    gl_FragColor = vColor;
+  }
+</script>
+<script type="text/javascript">
+var gl;
+var canvas;
+var shaderProgram;
+var vertexBuffer;
+var colorBuffer;
+var vertices;
+var indices;
+
+function createShader(type, code) {
+  var source = code;
+  var shader = gl.createShader(type);
+  gl.shaderSource(shader, source);
+  gl.compileShader(shader);
+  return shader;  
+}
+
+function initShaders() {
+  var vertexShader = createShader(gl.VERTEX_SHADER, document.getElementById('shader-vs').innerHTML);
+  var fragmentShader = createShader(gl.FRAGMENT_SHADER, document.getElementById('shader-fs').innerHTML);
+  shaderProgram = gl.createProgram();
+  gl.attachShader(shaderProgram, vertexShader);
+  gl.attachShader(shaderProgram, fragmentShader);
+  gl.linkProgram(shaderProgram);
+  gl.useProgram(shaderProgram);
+  shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
+  gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
+  shaderProgram.vertexColorAttribute = gl.getAttribLocation(shaderProgram, "aVertexColor"); // Добавляем атрибут цвета
+  gl.enableVertexAttribArray(shaderProgram.vertexColorAttribute);
+}
+
+function initBuffers() {
+  vertices = [
+         0.0,  0.0,  0.0,
+        -0.5, -0.5,  0.0,
+        -0.5,  0.5,  0.0,
+         0.5,  0.5,  0.0,
+         0.5, -0.5,  0.0
+  ];
+
+  indices = [0, 1, 2]; // indices = [0, 1, 2, 3, 4, 1];
+
+  vertexBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+
+  indexBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+
+  var сolors = [ // Добавляем массив цветов
+        1.0, 0.0, 0.0, // RED
+        0.0, 1.0, 0.0, // GREEN
+        0.0, 0.0, 1.0, // BLUE
+        1.0, 1.0, 0.0, // YELLOW
+        1.0, 0.0, 1.0  // PURPLE
+    ];
+  colorBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(сolors), gl.STATIC_DRAW);
+}
+
+function draw() {    
+  gl.viewport(0, 0, canvas.width, canvas.height);
+  gl.clearColor(0.5, 0.5, 0.5, 1.0);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+  gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+  gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer); // Добавляем атрибут цвета
+  gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, 3, gl.FLOAT, false, 0, 0);
+  gl.drawElements(gl.TRIANGLE_FAN, indices.length, gl.UNSIGNED_SHORT, 0);
+//  gl.drawElements(gl.LINE_LOOP, indices.length, gl.UNSIGNED_SHORT, 0);
+}
+  
+window.onload = function() {
+  canvas = document.getElementById("canvas");
+  gl = canvas.getContext("webgl");
+  if (!gl) {
+    document.write("Ваш браузер не поддерживает WebGL");
+  } else {
+    initShaders();
+    initBuffers();
+    draw();  
+  }
+}
+</script>
+</body>
+</html>

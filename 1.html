@@ -1,0 +1,32 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<title>WebGL Пример 1: Выводим "Hello, World!" в контекст 2d</title>
+<meta charset="utf-8" />
+</head>
+<body>
+<canvas id="canvas" width="400" height="400" style="border: 1px solid #00FF00">Ваш браузер не поддерживает элемент canvas</canvas>
+<script>
+var gl;
+var canvas;
+
+function draw() {
+  gl.font = '20pt Calibri';
+  gl.fillStyle = "#0000FF";
+//  gl.font = '35pt Calibri';
+//  gl.fillStyle = "rgba(0, 0, 255, 0.5)";
+  gl.fillText('Hello, World!', 100, 200);
+}
+
+window.onload = function() {
+  canvas = document.getElementById("canvas");
+  gl = canvas.getContext("2d");
+  if (!gl) {
+    document.write("Ваш браузер не поддерживает контекст 2d");
+  } else {
+    draw();
+  }
+}
+</script>
+</body>
+</html>

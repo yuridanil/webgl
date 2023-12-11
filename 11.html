@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>WebGL Пример 11: Библиотека three.js: Массовая генерация объектов</title>
+<meta charset="utf-8" />
+<script src="three.min.js"></script>
+<script src="OrbitControls.js"></script>
+</head>
+<body>
+<canvas id="canvas" width="600" height="400">Ваш браузер не поддерживает элемент canvas</canvas>
+<script type="text/javascript">
+var canvas;
+
+canvas = document.getElementById('canvas');
+
+// Create renderer
+var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.setClearColor(0x000000, 1.0);
+
+// Create the scene
+var scene = new THREE.Scene();
+
+var camera = new THREE.PerspectiveCamera(45, canvas.width/canvas.height, 0.1, 100);
+camera.position.set(3, 5, 20);
+var camera_target = new THREE.Vector3(0, 0, 0);
+camera.lookAt(camera_target);
+var controls = new THREE.OrbitControls(camera);
+
+for (var i=0; i<100; i++) {
+  var box = new THREE.BoxGeometry(1, 1, 1);
+  var boxmtl = new THREE.MeshPhongMaterial({color: "hsl(" + Math.round(360 * Math.random()) + ', 100%, 50%)'});
+  var boxmesh = new THREE.Mesh(box, boxmtl);
+  boxmesh.castShadow = true;
+  boxmesh.receiveShadow = true;
+  boxmesh.position.set(10-Math.random()*20, 10-Math.random()*20, 10-Math.random()*20);
+  scene.add(boxmesh);
+}
+
+var plane = new THREE.BoxGeometry(20, 0.1, 20);
+var planemtl = new THREE.MeshPhongMaterial({color: 0xFFFFFF});
+var planemesh = new THREE.Mesh(plane, planemtl);
+planemesh.castShadow = true;
+planemesh.receiveShadow = true;
+planemesh.position.set(0, 0, 0);
+scene.add(planemesh);
+
+// Add ambient light
+var am_light = new THREE.AmbientLight(0x555522); // warm
+scene.add(am_light);
+
+// Add directional light
+var spotlight = new THREE.SpotLight(0xFFFFFF, 1.0);
+spotlight.position.set(-5, 50, -50);
+spotlight.target = scene;
+spotlight.castShadow = true;
+spotlight.receiveShadow = true;
+spotlight.shadow.mapSize.width = 2048;
+spotlight.shadow.mapSize.height = 2048;
+spotlight.shadow.camera.near = 0.5;
+spotlight.penumbra = 1;
+scene.add(spotlight);
+
+// Render loop
+var render = function () {
+  camera.lookAt(camera_target);
+  renderer.render(scene, camera);
+  requestAnimationFrame(render);
+};
+
+window.onload = function() {
+  requestAnimationFrame(render);
+};
+
+</script>
+</body>
+</html>

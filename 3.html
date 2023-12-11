@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>WebGL Пример 3: Изучаем примитивы, используем буфер индексов</title>
+<meta charset="utf-8" />
+</head>
+<body>
+<canvas id="canvas" width="400" height="400">Ваш браузер не поддерживает элемент canvas</canvas>
+<script id="shader-vs" type="x-shader/x-vertex">
+  attribute vec3 aVertexPosition;
+  void main(void) {
+    gl_Position = vec4(aVertexPosition, 1.0);
+  }
+</script>
+<script id="shader-fs" type="x-shader/x-fragment">
+  void main(void) {
+    gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
+  }
+</script>
+<script type="text/javascript">
+var gl;
+var canvas;
+var shaderProgram;
+var vertexBuffer;
+var indexBuffer;
+var vertices;
+var indices;
+
+function createShader(type, code) {
+  var source = code;
+  var shader = gl.createShader(type);
+  gl.shaderSource(shader, source);
+  gl.compileShader(shader);
+  return shader;  
+}
+
+function initShaders() {
+  var vertexShader = createShader(gl.VERTEX_SHADER, document.getElementById('shader-vs').innerHTML);
+  var fragmentShader = createShader(gl.FRAGMENT_SHADER, document.getElementById('shader-fs').innerHTML);
+  shaderProgram = gl.createProgram();
+  gl.attachShader(shaderProgram, vertexShader);
+  gl.attachShader(shaderProgram, fragmentShader);
+  gl.linkProgram(shaderProgram);
+  gl.useProgram(shaderProgram);
+  shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
+  gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
+}
+  
+function initBuffers() {
+  vertices = [
+         0.0,  0.0,  0.0,
+        -0.5, -0.5,  0.0,
+        -0.5,  0.5,  0.0,
+         0.5,  0.5,  0.0,
+         0.5, -0.5,  0.0
+  ];
+ 
+  indices = [0, 1]; // indices = [1, 2, 3, 4]; // indices = [0, 1, 0, 2, 0, 3, 0, 4]; // LINES
+//   indices = [2, 1]; // indices = [2, 1, 0, 4, 3]; // indices = [1, 2, 0, 3, 4]; // LINE_STRIP
+//  indices = [0, 1, 2]; // indices = [0, 1, 2, 0, 3, 4, 0, 2, 3]; // LINE_LOOP
+//  indices = [0, 1, 2]; indices = [0, 1, 2, 0, 2, 3, 0, 3, 4]; // TRIANGLE_STRIP
+//  indices = [0, 1, 2]; // indices = [0, 1, 2, 3, 4]; // TRIANGLE_FAN
+
+  vertexBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+   
+  indexBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+}
+  
+function draw() {    
+  gl.viewport(0, 0, canvas.width, canvas.height);
+  gl.clearColor(0.5, 0.5, 0.5, 1.0);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+  gl.drawElements(gl.LINES, indices.length, gl.UNSIGNED_SHORT, 0);
+//  gl.drawElements(gl.LINE_STRIP, indices.length, gl.UNSIGNED_SHORT, 0);
+//  gl.drawElements(gl.LINE_LOOP, indices.length, gl.UNSIGNED_SHORT, 0);
+//  gl.drawElements(gl.TRIANGLE_STRIP, indices.length, gl.UNSIGNED_SHORT, 0);
+//  gl.drawElements(gl.TRIANGLE_FAN, indices.length, gl.UNSIGNED_SHORT, 0);
+}
+  
+window.onload = function() {
+  canvas = document.getElementById("canvas");
+  gl = canvas.getContext("webgl");
+  if (!gl) {
+    document.write("Ваш браузер не поддерживает WebGL");
+  } else {
+    initShaders();
+    initBuffers();
+    draw();  
+  }
+}
+</script>
+</body>
+</html>
